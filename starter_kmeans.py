@@ -26,3 +26,6 @@ def distanceFunc(X, MU):
     # Outputs
     # pair_dist: is the pairwise distance matrix (NxK)
     # TODO
+    points_expanded = tf.expand_dims(X, 0)
+    means_expanded = tf.expand_dims(MU, 1)
+    return tf.reduce_sum( tf.square( points_expanded - means_expanded ), 2 )
