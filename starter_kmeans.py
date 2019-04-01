@@ -20,6 +20,7 @@ if is_valid:
   val_data = data[rnd_idx[:valid_batch]]
   data = data[rnd_idx[valid_batch:]]
   print("Hello")
+  
 
 
 # Distance function for K-means
@@ -30,34 +31,52 @@ def distanceFunc(X, MU):
     # Outputs
     # pair_dist: is the pairwise distance matrix (NxK)
     # TODO
-    points_expanded = tf.expand_dims(X, 0)
-    means_expanded = tf.expand_dims(MU, 1)    
+    points_expanded = tf.expand_dims(X, 1)
+    means_expanded = tf.expand_dims(MU, 0)    
     return tf.reduce_sum(tf.square(points_expanded - means_expanded), 2)
 
 
 def buildGraph(input_data, cluster_size):
     input_x = tf.placeholder(tf.float32, shape=[None, input_data.shape[1]], name='input_x')
     centroids = tf.Variable(tf.random_normal([cluster_size, input_data.shape[1]], stddev=0.5))
-    
+    num_data = tf.placeholder(tf.float32)
     #Calculate the pair-distance matrix
     pair_distance = distanceFunc(input_x, centroids)
     
     #Calculate the loss
-    loss = tf.reduce_sum(tf.reduce_min(pair_distance, 1))
-    
+    loss = tf.reduce_sum(tf.reduce_min(pair_distance, 1)) / num_data
+    #calculate the prediction
+    #print(pair_distance.shape)
+    prediction = tf.argmin(pair_distance,1)
     #Optimizer
     with tf.name_scope("optimizer"):
-        optimizer = tf.train.AdamOptimizer(learning_rate=1e-4, beta1=0.9, beta2=0.99, epsilon=1e-5).minimize(loss)
+        optimizer = tf.train.AdamOptimizer(learning_rate=0.0075, beta1=0.9, beta2=0.99, epsilon=1e-5).minimize(loss)
     
-    return input_x, centroids, pair_distance, loss, optimizer
+    return input_x, centroids, pair_distance, loss, optimizer, prediction, num_data
     
+def plot_scatter(k, traindata, label=None, centers= None):
 
+    color_list = ["r","g","b","c","m"]
+    print (label.shape)
+    print(traindata.shape)
+    clabel = []
+    for i in range(len(label)):
+        clabel.append(color_list[label[i]])
+    plt.figure()
+    plt.title("prediction of data with {} clusters".format(k))
+    plt.xlim([-4,4.5])
+    plt.ylim([-5,3])
+    plt.scatter(traindata[:,0], traindata[:,1], c=clabel, marker='.', s=3)
+
+    plt.scatter(centers[:, 0], centers[:, 1], c='k', marker='x')
+    plt.savefig("./output_pic/{}_cluster_plot_{}.png".format(k, is_valid))
+    
 def main(): 
     #loss values
     train_loss_list = []
     
     #Build the graph
-    input_x, centroids, pair_distance, loss, optimizer = buildGraph(data, 3)
+    input_x, centroids, pair_distance, loss, optimizer, prediction, num_data = buildGraph(data, 3)
     
     with tf.Session() as sess:
     # Initialize all variables
@@ -65,12 +84,13 @@ def main():
         
         # Loop over number of epochs
         for epoch in range(1000):
-            feed_dict_train = {input_x: data}
+            feed_dict_train = {input_x: data, num_data: data.shape[0]}
             
             #Run the optimizer
             sess.run(optimizer, feed_dict=feed_dict_train)
             
-            loss_value = sess.run(loss, feed_dict=feed_dict_train)
+            loss_value, train_prediction = sess.run([loss, prediction], feed_dict=feed_dict_train)
+            #print(train_prediction)
             train_loss_list.append(loss_value)
             print(loss_value)
      
@@ -81,7 +101,9 @@ def main():
     plt.grid()
     plt.legend(loc='best')
     plt.xlabel('Iteration')
-    plt.ylabel('Loss')          
+    plt.ylabel('Loss')  
+
+    #plot_scatter(3, data, label= train_prediction, centers= centroids)       
 
 if __name__ == "__main__":
     main()
