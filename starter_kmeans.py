@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 import helper as hlp
+import collections, numpy
 
 # Loading data
 data = np.load('data2D.npy')
@@ -54,7 +55,7 @@ def buildGraph(input_data, cluster_size):
     
     return input_x, centroids, pair_distance, loss, optimizer, prediction, num_data
     
-def plot_scatter(k, traindata, label=None, centers= None):
+def plot_scatter(k, traindata, label=None):
 
     color_list = ["r","g","b","c","m"]
     print (label.shape)
@@ -63,21 +64,28 @@ def plot_scatter(k, traindata, label=None, centers= None):
     for i in range(len(label)):
         clabel.append(color_list[label[i]])
     plt.figure()
-    plt.title("prediction of data with {} clusters".format(k))
-    plt.xlim([-4,4.5])
+    plt.title("Classification of points with {} clusters".format(k))
+    plt.xlim([-4,5])
     plt.ylim([-5,3])
-    plt.scatter(traindata[:,0], traindata[:,1], c=clabel, marker='.', s=3)
+    plt.scatter(traindata[:,0], traindata[:,1], c=clabel, marker='.', s=1)
 
-    plt.scatter(centers[:, 0], centers[:, 1], c='k', marker='x')
-    plt.savefig("./output_pic/{}_cluster_plot_{}.png".format(k, is_valid))
+    #plt.savefig("./output_pic/{}_cluster_plot_{}.png".format(k, is_valid))
     
-def main(): 
+def find_distribution (train_prediction, k):
+    distribution = []
+    distribution.append((collections.Counter(train_prediction)))
+    return distribution 
+    
+    
+def main():
+    
+    k_value = 5
     #loss values
     train_loss_list = []
     
     #Build the graph
-    input_x, centroids, pair_distance, loss, optimizer, prediction, num_data = buildGraph(data, 3)
-    
+    input_x, centroids, pair_distance, loss, optimizer, prediction, num_data = buildGraph(data, k_value)
+
     with tf.Session() as sess:
     # Initialize all variables
         sess.run(tf.global_variables_initializer())
@@ -97,13 +105,16 @@ def main():
 
     plt.figure(1)
     plt.plot(train_loss_list, c='b')
-    plt.title("Cluster Size of 3")
+    plt.title("Cluster Size of " + str(k_value))
     plt.grid()
     plt.legend(loc='best')
     plt.xlabel('Iteration')
-    plt.ylabel('Loss')  
-
-    #plot_scatter(3, data, label= train_prediction, centers= centroids)       
+    plt.ylabel('Loss') 
+    
+    
+    
+    plot_scatter(k_value, data, label= train_prediction)  
+    print(find_distribution(train_prediction, k_value)) 
 
 if __name__ == "__main__":
     main()
