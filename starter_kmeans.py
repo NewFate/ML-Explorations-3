@@ -70,6 +70,7 @@ def part_1_plot(k, traindata, cluster, figure_number):
         color_of_points.append(colors[cluster[i]])
     plt.figure(figure_number)
     plt.title("Classification of points with {} clusters".format(k))
+    
     plt.xlim([-4,5])
     plt.ylim([-5,3])
     plt.scatter(traindata[:,0], traindata[:,1], c=color_of_points, marker='.', s=1)
@@ -84,7 +85,7 @@ def find_distribution (train_prediction, k):
     
 def main():
     
-    cluster_values = [30]
+    cluster_values = [5]
     figure_number = 0
     final_train_loss_values = []
     final_valid_loss_values = []
