@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import helper as hlp
 
 # Loading data
-#data = np.load('data100D.npy')
-data = np.load('data2D.npy')
+data = np.load('data100D.npy')
+#data = np.load('data2D.npy')
 [num_pts, dim] = np.shape(data)
 
 is_valid = False
