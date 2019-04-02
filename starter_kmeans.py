@@ -62,8 +62,10 @@ def part_1_plot(k, traindata, cluster):
     color_of_points = []
     for i in range(len(cluster)):
         color_of_points.append(cluster_color[cluster[i]])
+        
     plt.figure()
     plt.title("Classification of points with {} clusters".format(k))
+    
     plt.xlim([-4,5])
     plt.ylim([-5,3])
     plt.scatter(traindata[:,0], traindata[:,1], c=color_of_points, marker='.', s=1)
