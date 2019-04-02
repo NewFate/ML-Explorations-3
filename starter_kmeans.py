@@ -19,7 +19,6 @@ if is_valid:
   np.random.shuffle(rnd_idx)
   val_data = data[rnd_idx[:valid_batch]]
   data = data[rnd_idx[valid_batch:]]
-  print("Hello")
   
 
 
