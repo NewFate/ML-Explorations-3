@@ -75,7 +75,6 @@ def part_1_plot(k, traindata, cluster, figure_number):
     plt.ylim([-5,3])
     plt.scatter(traindata[:,0], traindata[:,1], c=color_of_points, marker='.', s=1)
 
-    #plt.savefig("./output_pic/{}_cluster_plot_{}.png".format(k, is_valid))
     
 def find_distribution (train_prediction, k):
     distribution = []
@@ -85,7 +84,7 @@ def find_distribution (train_prediction, k):
     
 def main():
     
-    cluster_values = [5]
+    cluster_values = [20]
     figure_number = 0
     final_train_loss_values = []
     final_valid_loss_values = []
