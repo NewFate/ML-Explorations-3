@@ -2,6 +2,13 @@ import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 import helper as hlp
+import collections
+from random import randint
+
+colors = []
+
+for i in range(50):
+    colors.append('#'+'%06X' % randint(0, 0xFFFFFF))
 
 # Loading data
 data = np.load('data100D.npy')
@@ -45,7 +52,7 @@ def log_GaussPDF(X, mu, sigma):
     
     pair_distance = distanceFunc(X, mu)
     d = X.shape[1].value
-    sigma2 = tf.squeeze(tf.exp(sigma))
+    sigma2 = tf.transpose(tf.exp(sigma))
     
     # Expansion of log pdf
     return -(1/2) * d * tf.log(2*np.pi*sigma2) - (pair_distance/(2*sigma2))
@@ -60,7 +67,7 @@ def log_posterior(log_PDF, log_pi):
     # log_post: N X K
 
     # TODO
-    log_pi = tf.squeeze(log_pi)
+    log_pi = tf.transpose(log_pi)
     # Conditional Probability formula
     return log_PDF + log_pi - hlp.reduce_logsumexp(log_PDF + log_pi, 0, keep_dims=True)
     
@@ -74,7 +81,7 @@ def calculate_loss(X, mu, sigma, log_pi):
     # loss: scalar
 
     log_PDF = log_GaussPDF(X, mu, sigma)
-    log_pi = tf.squeeze(log_pi)
+    log_pi = tf.transpose(log_pi)
     
     return - tf.reduce_mean(hlp.reduce_logsumexp(log_PDF + log_pi, 1, keep_dims=True))    
     
@@ -91,13 +98,13 @@ def buildGraph(input_data, cluster_size):
     #num_data = tf.placeholder(tf.float32)
     
     #Calculate the loss
-    loss = calculate_loss(input_x, mu, sigma, log_pi)
+    loss = calculate_loss(input_x, mu, sigma, log_pi) / input_data.shape[1]
     
     #Calculate Prediction
     prediction = tf.argmax(log_posterior(log_PDF, log_pi), 1)
     
     with tf.name_scope("optimizer"):
-        optimizer = tf.train.AdamOptimizer(learning_rate=0.01, beta1=0.9, beta2=0.99, epsilon=1e-5).minimize(loss)
+        optimizer = tf.train.AdamOptimizer(learning_rate=1, beta1=0.9, beta2=0.99, epsilon=1e-5).minimize(loss)
 
     return input_x, mu, sigma, pi, loss, prediction, optimizer
 
