@@ -97,7 +97,7 @@ def buildGraph(input_data, cluster_size):
     #num_data = tf.placeholder(tf.float32)
     
     #Calculate the loss
-    loss = calculate_loss(input_x, mu, sigma, log_pi)
+    loss = calculate_loss(input_x, mu, sigma, log_pi)/input_data.shape[1]
     
     #Calculate Prediction
     prediction = tf.argmax(log_posterior(log_PDF, log_pi), 1)
